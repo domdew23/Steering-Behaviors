@@ -31,16 +31,19 @@ public class Agent extends Sprite {
 	}
 
 	public void update(Building building){
+		this.rect = getBoundingRectangle();
+		if (this.rect.overlaps(building.rect)){
+			System.out.println("collision");
+			this.velocity = velocity.multiply(-2);
+		}
+
 		velocity = velocity.add(acceleration);
 		limitSpeed();
 		location = location.add(velocity);
 		setPosition(this.location.x, this.location.y);
+		//setCenter(this.getWidth() / 2, this.getHeight() / 2);
 		acceleration = acceleration.multiply(0);
-		this.rect = getBoundingRectangle();
 
-		if (this.rect.overlaps(building.rect)){
-			this.velocity = velocity.multiply(-2);
-		}
 	}
 
 	protected void limitSpeed(){

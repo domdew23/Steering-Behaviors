@@ -23,9 +23,9 @@ public class GameScreen implements Screen {
 
 	public GameScreen(){
 		camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		building = new Building("building.png", 0, 50, 400, 200, Color.BLUE);
+		building = new Building("building.png", 0, 100, 400, 200, Color.BLUE);
 		batch = new SpriteBatch();
-		guard = new Guard("guard.png", 100, 100, -80, -50); //115 145
+		guard = new Guard("guard.png", 100, 100, -80, -60); //115 145
 		player = new Player("player.png", 100, 100, -300, 400);
 		camera.position.x += 200;
 		camera.position.y += 100;
@@ -40,10 +40,8 @@ public class GameScreen implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     	Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);		
-		guard.drawView(delta, camera);
-		batch.begin();
-		guard.rotateGuard(delta);
-		
+		guard.drawView(delta, camera, player);
+		batch.begin();		
 		if(Gdx.input.isKeyPressed(Keys.DOWN)) {
 			player.applyForce(new Vector(0, -0.5f));
 		}
@@ -59,12 +57,15 @@ public class GameScreen implements Screen {
 		
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
-		guard.draw(batch);
-		player.draw(batch);
-		building.draw(batch);
+
 		//guard.seek(player.location.add(player.velocity.multiply(3)));
 		player.update(building);
 		guard.update(building);
+		guard.rotateGuard(delta);
+
+		guard.draw(batch);
+		player.draw(batch);
+		building.draw(batch);
 		batch.end();
 	
 	}
