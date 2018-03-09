@@ -8,9 +8,9 @@ public class Vector {
 	public Vector(float x, float y){
 		this.x = x;
 		this.y = y;
-		vector = new float[2];
-		vector[0] = x;
-		vector[1] = y;
+		this.vector = new float[2];
+		this.vector[0] = x;
+		this.vector[1] = y;
 	}
 
 	public Vector add(Vector u){
@@ -34,7 +34,10 @@ public class Vector {
 	}
 
 	public Vector normalize(){
-		float mag = (float) Math.sqrt((this.x * this.x) + (this.y * this.y));
-		return (new Vector(this.x / mag, this.y / mag));
+		return (new Vector(this.x / magnitude(), this.y / magnitude()));
+	}
+
+	public float magnitude(){
+		return ((float) Math.sqrt(this.x * this.x + this.y * this.y));
 	}
 }

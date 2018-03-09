@@ -33,10 +33,9 @@ public class Guard extends Agent {
 	}
 
 	public void arrive(){
-
 	}
 
-	public void pursuit(){
+	public void avoid(){
 
 	}
 
