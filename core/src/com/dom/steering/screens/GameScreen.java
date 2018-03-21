@@ -42,7 +42,29 @@ public class GameScreen implements Screen {
     	Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);		
 		guard.drawView(delta, camera, player);
-		batch.begin();		
+		
+		batch.begin();
+		handleInput(delta);
+		update(delta);
+		draw(delta);
+		batch.end();
+	}
+
+	private void update(float delta){
+		camera.update();
+		batch.setProjectionMatrix(camera.combined);
+		guard.checkState(delta, player);
+		player.update(building);
+		guard.update(building);
+	}
+
+	private void draw(float delta){
+		guard.draw(batch);
+		player.draw(batch);
+		building.draw(batch);
+	}
+
+	private void handleInput(float delta){
 		if(Gdx.input.isKeyPressed(Keys.DOWN)) {
 			player.applyForce(new Vector2(0, -0.5f));
 		}
@@ -55,17 +77,6 @@ public class GameScreen implements Screen {
 		if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
 			player.applyForce(new Vector2(0.5f, 0));
 		}
-		
-		camera.update();
-		batch.setProjectionMatrix(camera.combined);
-		
-		guard.checkState(delta, player);
-		player.update(building);
-		guard.update(building);
-		guard.draw(batch);
-		player.draw(batch);
-		building.draw(batch);
-		batch.end();
 	}
 
 	public void pause(){

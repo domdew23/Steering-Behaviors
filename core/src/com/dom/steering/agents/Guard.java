@@ -18,6 +18,7 @@ public class Guard extends Agent {
 	private ShapeRenderer renderer;
 	private boolean flipped = false;
 	private float EPSILON = 4.0f;
+	private float COLLISIONEPISLON = 4.0f;
 	private float rotationSpeed = 25f;
 
 	private enum State {
@@ -54,6 +55,7 @@ public class Guard extends Agent {
 			CURRENT = State.RETURNING;
 		}
 
+		//if (//(location.x + getWidth() / 2) - (player.location.x + player.getWidth() / 2) < EPSILON && (location.y + getHeight() / 2) - (player.location.y + player.getHeight() / 2) < EPSILON){
 		if (this.rect.overlaps(player.rect)){
 			CURRENT = State.DEAD;
 		}
@@ -65,9 +67,9 @@ public class Guard extends Agent {
 
 	private void updateState(float delta, Player player){
 		switch (CURRENT){
-			case GUARDING: rotateGuard(delta); System.out.println("Guarding..."); break;
-			case CHASING: seek(player.location.cpy().add(player.velocity.cpy().scl(3))); System.out.println("Chasing..."); break;
-			case RETURNING: seek(startPosition.cpy()); System.out.println("Returning..."); break;
+			case GUARDING: rotateGuard(delta); break;
+			case CHASING: seek(player.location.cpy().add(player.velocity.cpy().scl(3))); break;
+			case RETURNING: seek(startPosition.cpy()); break;
 			case DEAD: System.out.println("DEAD"); break;
 			default: System.out.println("ERROR");
 		}
@@ -89,6 +91,7 @@ public class Guard extends Agent {
 	}
 
 	public void arrive(){
+	
 	}
 
 	public void avoid(){
@@ -99,7 +102,6 @@ public class Guard extends Agent {
 		renderer.begin(ShapeRenderer.ShapeType.Filled);
 		renderer.setColor(new Color(1, 0, 0, 0.2f));
 		renderer.arc(location.x + getWidth() / 2, location.y + getHeight() / 2, 300, fovDegrees - 60, FOV);
-		renderer.line(location.x + getWidth() / 2, location.y + getHeight() / 2, player.location.x + player.getWidth() / 2, player.location.y + player.getHeight() / 2);
 		renderer.setProjectionMatrix(camera.combined);
 		renderer.end();
 	}

@@ -33,6 +33,7 @@ public class Agent extends Sprite {
 
 	public void update(Building building){
 		this.rect = getBoundingRectangle();
+		
 		if (this.rect.overlaps(building.rect)){
 			this.velocity = velocity.scl(-5);
 		}
