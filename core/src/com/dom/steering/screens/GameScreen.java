@@ -12,6 +12,7 @@ import com.dom.steering.objects.Building;
 import com.dom.steering.agents.Guard;
 import com.dom.steering.agents.Player;
 import com.dom.steering.tools.Vector;
+import com.badlogic.gdx.math.Vector2;
 
 public class GameScreen implements Screen {
 	
@@ -23,9 +24,9 @@ public class GameScreen implements Screen {
 
 	public GameScreen(){
 		camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		building = new Building("building.png", 0, 100, 400, 200, Color.BLUE);
+		building = new Building("building.png", 100, 150, 400, 200, Color.BLUE);
 		batch = new SpriteBatch();
-		guard = new Guard("guard.png", 100, 100, -80, -60); //115 145
+		guard = new Guard("guard.png", 100, 100, -80, -40);
 		player = new Player("player.png", 100, 100, -300, 400);
 		camera.position.x += 200;
 		camera.position.y += 100;
@@ -43,31 +44,28 @@ public class GameScreen implements Screen {
 		guard.drawView(delta, camera, player);
 		batch.begin();		
 		if(Gdx.input.isKeyPressed(Keys.DOWN)) {
-			player.applyForce(new Vector(0, -0.5f));
+			player.applyForce(new Vector2(0, -0.5f));
 		}
 		if(Gdx.input.isKeyPressed(Keys.UP)) {
-			player.applyForce(new Vector(0, 0.5f));
+			player.applyForce(new Vector2(0, 0.5f));
 		}
 		if(Gdx.input.isKeyPressed(Keys.LEFT)) {
-			player.applyForce(new Vector(-0.5f, 0));
+			player.applyForce(new Vector2(-0.5f, 0));
 		}
 		if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
-			player.applyForce(new Vector(0.5f, 0));
+			player.applyForce(new Vector2(0.5f, 0));
 		}
 		
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
-
-		//guard.seek(player.location.add(player.velocity.multiply(3)));
+		
+		guard.checkState(delta, player);
 		player.update(building);
 		guard.update(building);
-		guard.rotateGuard(delta);
-
 		guard.draw(batch);
 		player.draw(batch);
 		building.draw(batch);
 		batch.end();
-	
 	}
 
 	public void pause(){

@@ -12,12 +12,13 @@ public class Guard extends Agent {
 	private float FOV = 120;
 	private float degrees = 0;
 	private float fovDegrees = 0;
-	private int direction = -1;
-	private Vector startPosition;
-	private Vector lineStart;
-	private Vector lineEnd;
+	private int rotation = -1;
+	private Vector2 startPosition;
+	private Vector2 playerDirection;
 	private ShapeRenderer renderer;
 	private boolean flipped = false;
+	private float EPSILON = 4.0f;
+	private float rotationSpeed = 25f;
 
 	private enum State {
 		GUARDING,
@@ -26,23 +27,64 @@ public class Guard extends Agent {
 		DEAD
 	}
 
+	private State CURRENT;
+
 	public Guard(String texture, float width, float height, float x, float y) {
 		super(texture, width, height, x, y);
 		setOriginCenter();
 		this.renderer = new ShapeRenderer();
-		//this.renderer.identity();
- 		//this.renderer.translate(this.location.x + this.getWidth() / 2, this.location.y + this.getHeight() / 2, 0);
- 		this.startPosition = new Vector(x, y);
- 		this.lineStart = new Vector(this.location.x + this.getWidth() / 2, this.location.y + this.getHeight() / 2);
- 		this.lineEnd = new Vector(lineStart.x + 250, lineStart.y + 1);
+ 		this.startPosition = new Vector2(x, y);
+ 		this.playerDirection = new Vector2(0, 0);
  		this.maxSpeed = 4;
+ 		setRotation(fovDegrees);
+ 		direction.setAngle(fovDegrees);
+		CURRENT = State.GUARDING;
 	}
 
-	public void seek(Vector target){
-		Vector desired = target.subtract(location);
-		desired = desired.normalize();
-		desired = desired.multiply(maxSpeed);
-		Vector force = desired.subtract(velocity);
+	public void checkState(float delta, Player player){
+		Vector2 v = player.location.cpy().sub(location);
+		playerDirection = v.cpy().nor();
+		float angle = playerDirection.angle(direction);
+		
+		if (Math.abs(angle) < FOV / 2 && v.len2() < 112000){
+			CURRENT = State.CHASING;
+		}
+
+		if ((Math.abs(angle) > FOV / 2 || v.len2() > 112000) && CURRENT != State.GUARDING){
+			CURRENT = State.RETURNING;
+		}
+
+		if (this.rect.overlaps(player.rect)){
+			CURRENT = State.DEAD;
+		}
+		
+		if (Math.abs(location.x - startPosition.x) < EPSILON && Math.abs(location.y - startPosition.y) < EPSILON && CURRENT == State.RETURNING) CURRENT = State.GUARDING;
+
+		updateState(delta, player);
+	}
+
+	private void updateState(float delta, Player player){
+		switch (CURRENT){
+			case GUARDING: rotateGuard(delta); System.out.println("Guarding..."); break;
+			case CHASING: seek(player.location.cpy().add(player.velocity.cpy().scl(3))); System.out.println("Chasing..."); break;
+			case RETURNING: seek(startPosition.cpy()); System.out.println("Returning..."); break;
+			case DEAD: System.out.println("DEAD"); break;
+			default: System.out.println("ERROR");
+		}
+	}
+
+	public void seek(Vector2 target){	
+		float angle = location.cpy().sub(target).nor().angle();
+		angle += 180;
+		setRotation(angle);
+		direction.setAngle(angle);
+		fovDegrees = angle;
+
+		Vector2 desired = target.cpy().sub(location);
+		desired.nor();
+		desired.scl(maxSpeed);
+		Vector2 force = desired.sub(velocity);
+		force.limit(maxForce);
 		applyForce(force);
 	}
 
@@ -56,22 +98,15 @@ public class Guard extends Agent {
 	public void drawView(float delta, OrthographicCamera camera, Player player){
 		renderer.begin(ShapeRenderer.ShapeType.Filled);
 		renderer.setColor(new Color(1, 0, 0, 0.2f));
-		//renderer.arc(this.location.x + this.getWidth() / 2, this.location.y + this.getHeight() / 2, 300, degrees, FOV);
-		
-		//lineStart = new Vector2(this.location.x + this.getWidth() / 2, this.location.y + this.getHeight() / 2);
- 		//lineEnd = new Vector2(lineStart.x - 250, lineStart.y - 250);
-		
-		renderer.line(lineStart.x, lineStart.y, lineEnd.x, lineEnd.y);
-		System.out.println(lineEnd.dotProduct(player.location));
-		renderer.rotate(0, 0, 1, direction * delta * 50);
+		renderer.arc(location.x + getWidth() / 2, location.y + getHeight() / 2, 300, fovDegrees - 60, FOV);
+		renderer.line(location.x + getWidth() / 2, location.y + getHeight() / 2, player.location.x + player.getWidth() / 2, player.location.y + player.getHeight() / 2);
 		renderer.setProjectionMatrix(camera.combined);
 		renderer.end();
 	}
 
 	public void rotateGuard(float delta){
 		if (degrees > 270){
-			rotate(direction * delta * 50);
-			direction = (direction * -1);
+			rotation = (rotation * -1);
 			degrees = 0;
 			if (flipped){
 				flipped = false;
@@ -79,13 +114,14 @@ public class Guard extends Agent {
 				flipped = true;
 			}
 		} else {
-			rotate(direction * delta * 50);
-			degrees += (delta * 50);
+			degrees += (delta * rotationSpeed);
 			if (flipped){
-				fovDegrees -= (delta * 50);
+				fovDegrees += (delta * rotationSpeed);
 			} else {
-				fovDegrees += (delta * 50);
+				fovDegrees -= (delta * rotationSpeed);
 			}
 		}
+		direction.setAngle(fovDegrees).nor();
+		setRotation(direction.angle());
 	}
 }

@@ -17,11 +17,11 @@ public class Vector {
 		return (new Vector(this.x + u.x, this.y + u.y));
 	}
 
-	public Vector subtract(Vector u){
+	public Vector sub(Vector u){
 		return (new Vector(this.x - u.x, this.y - u.y));
 	}
 
-	public float dotProduct(Vector u){
+	public float dot(Vector u){
 		return ((this.x * u.x) + (this.y * u.y));
 	}
 
@@ -29,15 +29,34 @@ public class Vector {
 		return ((this.x * u.y) - (this.y * u.x));
 	}
 
-	public Vector multiply(int scalar){
+	public Vector scl(int scalar){
 		return (new Vector(this.x * scalar, this.y * scalar));
 	}
 
-	public Vector normalize(){
+	public Vector nor(){
 		return (new Vector(this.x / magnitude(), this.y / magnitude()));
 	}
 
 	public float magnitude(){
 		return ((float) Math.sqrt(this.x * this.x + this.y * this.y));
+	}
+
+	public float angle(){
+		float angle = (float) Math.toRadians((double) Math.atan2(y, x));
+		return angle;
+	}
+
+	public Vector setAngle(float degrees){
+		float radians = (float) Math.toRadians((double) degrees);
+		float cos = (float) Math.cos(radians);
+		float sin = (float) Math.sin(radians);
+
+		float newX = this.x * cos - this.y * sin;
+		float newY = this.x * sin + this.y * cos;
+
+		this.x = newX;
+		this.y = newY;
+
+		return this;
 	}
 }

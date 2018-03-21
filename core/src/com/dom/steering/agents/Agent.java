@@ -6,49 +6,47 @@ import com.badlogic.gdx.math.Rectangle;
 
 import com.dom.steering.tools.Vector;
 import com.dom.steering.objects.Building;
+import com.badlogic.gdx.math.Vector2;
 
 public class Agent extends Sprite {
 
-	public Vector velocity, location, acceleration;
-	protected int maxSpeed, maxForce, r;
+	public Vector2 velocity, location, acceleration, direction;
+	protected int maxSpeed, maxForce;
 	public Rectangle rect;
 
 	public Agent(String texture, float width, float height, float x, float y){
 		super(new Texture(texture));
 		setSize(width, height); 
 		setPosition(x, y);
-		this.location = new Vector(x, y);
-		this.velocity = new Vector(0, 0);
-		this.acceleration = new Vector(0, 0);
-		this.r = 6;
+		this.location = new Vector2(x, y);
+		this.velocity = new Vector2(0, 0);
+		this.acceleration = new Vector2(0, 0);
+		this.direction = new Vector2(x, y);
 		this.maxSpeed = 6;
 		this.maxForce = 1;
 		this.rect = getBoundingRectangle();
 	}
 
-	public void applyForce(Vector force){
-		acceleration = acceleration.add(force);
+	public void applyForce(Vector2 force){
+		this.acceleration.add(force);
 	}
 
 	public void update(Building building){
 		this.rect = getBoundingRectangle();
 		if (this.rect.overlaps(building.rect)){
-			System.out.println("collision");
-			this.velocity = velocity.multiply(-2);
+			this.velocity = velocity.scl(-5);
 		}
 
-		velocity = velocity.add(acceleration);
+		this.velocity.add(this.acceleration);
 		limitSpeed();
-		location = location.add(velocity);
+		this.location.add(this.velocity);
 		setPosition(this.location.x, this.location.y);
-		//setCenter(this.getWidth() / 2, this.getHeight() / 2);
-		acceleration = acceleration.multiply(0);
-
+		this.acceleration.scl(0);
 	}
 
 	protected void limitSpeed(){
 		if (acceleration.x == 0 || acceleration.y == 0){
-			velocity = velocity.subtract(new Vector(velocity.x / 16, velocity.y / 16));
+			velocity.sub(velocity.x / 16, velocity.y / 16);
 		}
 		if (velocity.x >= maxSpeed){
 			velocity.x = maxSpeed;
