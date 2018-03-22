@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 
-import com.dom.steering.tools.Vector;
 import com.dom.steering.objects.Building;
 import com.badlogic.gdx.math.Vector2;
 
@@ -33,13 +32,11 @@ public class Agent extends Sprite {
 
 	public void update(Building building){
 		this.rect = getBoundingRectangle();
-		
-		if (this.rect.overlaps(building.rect)){
-			this.velocity = velocity.scl(-5);
-		}
-
 		this.velocity.add(this.acceleration);
 		limitSpeed();
+		if (this.rect.overlaps(building.rect)){
+			velocity.scl(-5);
+		}
 		this.location.add(this.velocity);
 		setPosition(this.location.x, this.location.y);
 		this.acceleration.scl(0);

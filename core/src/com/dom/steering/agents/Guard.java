@@ -4,8 +4,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
-import com.dom.steering.tools.Vector;
+import com.dom.steering.screens.GameOverScreen;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Game;
 
 public class Guard extends Agent {
 	
@@ -20,6 +22,7 @@ public class Guard extends Agent {
 	private float EPSILON = 4.0f;
 	private float COLLISIONEPISLON = 4.0f;
 	private float rotationSpeed = 25f;
+	private boolean hit = false;
 
 	private enum State {
 		GUARDING,
@@ -55,7 +58,6 @@ public class Guard extends Agent {
 			CURRENT = State.RETURNING;
 		}
 
-		//if (//(location.x + getWidth() / 2) - (player.location.x + player.getWidth() / 2) < EPSILON && (location.y + getHeight() / 2) - (player.location.y + player.getHeight() / 2) < EPSILON){
 		if (this.rect.overlaps(player.rect)){
 			CURRENT = State.DEAD;
 		}
@@ -70,8 +72,8 @@ public class Guard extends Agent {
 			case GUARDING: rotateGuard(delta); break;
 			case CHASING: seek(player.location.cpy().add(player.velocity.cpy().scl(3))); break;
 			case RETURNING: seek(startPosition.cpy()); break;
-			case DEAD: System.out.println("DEAD"); break;
-			default: System.out.println("ERROR");
+			case DEAD: ((Game) Gdx.app.getApplicationListener()).setScreen(new GameOverScreen()); break;
+			default: break;
 		}
 	}
 
@@ -88,14 +90,6 @@ public class Guard extends Agent {
 		Vector2 force = desired.sub(velocity);
 		force.limit(maxForce);
 		applyForce(force);
-	}
-
-	public void arrive(){
-	
-	}
-
-	public void avoid(){
-
 	}
 
 	public void drawView(float delta, OrthographicCamera camera, Player player){
